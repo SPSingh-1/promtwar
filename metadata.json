@@ -1,0 +1,8 @@
+{
+  "name": "Aura Wellness",
+  "description": "A privacy first mental wellness tracker for students preparing for competitive exams.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
