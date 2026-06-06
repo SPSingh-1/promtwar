@@ -23,11 +23,6 @@ export const MoodLogger: React.FC = () => {
   const [backdateDays, setBackdateDays] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  // Guided reflection prompt rotates dynamically based on selected mood
-  const guidedPrompt = useEffect(() => {
-    // If the mood changes, reset reflection answer or keep it
-  }, [selectedMood]);
-
   const activePrompt = getGuidedPrompt(selectedMood);
 
   const TRIGGERS_AVAILABLE: StressTrigger[] = [

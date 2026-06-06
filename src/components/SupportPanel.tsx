@@ -10,6 +10,21 @@ import { Phone, ShieldAlert, Heart, Wind, Sparkles, CheckCircle, Eye, EyeOff, Cl
 
 type BreathPhase = "idle" | "inhale" | "hold" | "exhale";
 
+const JOURNAL_PROMPTS = [
+  {
+    title: "Preparation Micro-Victories",
+    question: "Write down 3 tiny things that went relatively well in your studies or focus blocks today (focusing on efforts rather than absolute mock scores)."
+  },
+  {
+    title: "Exam Worry Objective Debunker",
+    question: "Write down one acute fear you have about mock scores or upcoming cutoff marks, and list 2 logical arguments proving you are bigger than this single exam."
+  },
+  {
+    title: "Family Study Boundary",
+    question: "Write down a peaceful, clear study boundary you can explain to your parents or peers, helping reduce comparative pressure."
+  }
+];
+
 export const SupportPanel: React.FC = () => {
   const { showToast } = useUIContext();
   const { addMoodEntry } = useMoodContext();
@@ -123,6 +138,39 @@ export const SupportPanel: React.FC = () => {
     localStorage.setItem("wellness_support_checklist", JSON.stringify(updated));
     if (updated[key]) {
       showToast("Awesome self-care achievement checked!", "success");
+    }
+  };
+
+  // --- GUIDED JOURNAL PROMPTS STATE ---
+  const [selectedPromptIdx, setSelectedPromptIdx] = useState<number>(0);
+  const [promptAnswer, setPromptAnswer] = useState<string>("");
+  const [isSavingPrompt, setIsSavingPrompt] = useState<boolean>(false);
+
+  const handleSaveGuidedJournal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isSavingPrompt) return;
+    if (!promptAnswer.trim()) {
+      showToast("Please write some reflections first.", "warning");
+      return;
+    }
+
+    setIsSavingPrompt(true);
+    try {
+      await addMoodEntry(
+        MoodLevel.OKAY,
+        ["Studies"], // Tagged under Studies
+        5,           // Moderate intensity index
+        `5-Minute Support Journal entry:\n"${promptAnswer}"`,
+        JOURNAL_PROMPTS[selectedPromptIdx].question,
+        promptAnswer,
+        0            // Logged for today
+      );
+      setPromptAnswer("");
+      showToast("Guided meditation journal logged directly to database!", "success");
+    } catch {
+      showToast("Failed to write guided journal.", "warning");
+    } finally {
+      setIsSavingPrompt(false);
     }
   };
 
@@ -403,7 +451,7 @@ export const SupportPanel: React.FC = () => {
           <div className="mt-4 flex justify-end gap-2">
             {!groundingLocked ? (
               <button
-                _id="btn-ground-lock"
+                id="btn-ground-lock"
                 onClick={handleLockGrounding}
                 className="rounded-lg bg-emerald-600 px-4 py-1.5 text-4xs font-bold text-white hover:bg-emerald-500 cursor-pointer"
               >
@@ -504,123 +552,71 @@ export const SupportPanel: React.FC = () => {
           Pick an exam-focused cognitive alignment prompt. This helps flush negative projections from your working memory, freeing up mental space for retention.
         </p>
 
-        {/* State and logic */}
-        {(() => {
-          const [selectedPromptIdx, setSelectedPromptIdx] = useState<number>(0);
-          const [promptAnswer, setPromptAnswer] = useState<string>("");
-          const [isSavingPrompt, setIsSavingPrompt] = useState<boolean>(false);
-
-          const JOURNAL_PROMPTS = [
-            {
-              title: "Preparation Micro-Victories",
-              question: "Write down 3 tiny things that went relatively well in your studies or focus blocks today (focusing on efforts rather than absolute mock scores)."
-            },
-            {
-              title: "Exam Worry Objective Debunker",
-              question: "Write down one acute fear you have about mock scores or upcoming cutoff marks, and list 2 logical arguments proving you are bigger than this single exam."
-            },
-            {
-              title: "Family Study Boundary",
-              question: "Write down a peaceful, clear study boundary you can explain to your parents or peers, helping reduce comparative pressure."
-            }
-          ];
-
-          const handleSaveGuidedJournal = async (e: React.FormEvent) => {
-            e.preventDefault();
-            if (isSavingPrompt) return;
-            if (!promptAnswer.trim()) {
-              showToast("Please write some reflections first.", "warning");
-              return;
-            }
-
-            setIsSavingPrompt(true);
-            try {
-              await addMoodEntry(
-                MoodLevel.OKAY,
-                ["Studies"], // Tagged under Studies
-                5,           // Moderate intensity index
-                `5-Minute Support Journal entry:\n"${promptAnswer}"`,
-                JOURNAL_PROMPTS[selectedPromptIdx].question,
-                promptAnswer,
-                0            // Logged for today
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          
+          {/* Prompt Buttons Selection */}
+          <div className="md:col-span-1 space-y-2.5">
+            <span className="block text-4xs font-bold uppercase tracking-widest text-gray-400 dark:text-neutral-500">
+              Select Focus Reframer:
+            </span>
+            {JOURNAL_PROMPTS.map((p, idx) => {
+              const active = selectedPromptIdx === idx;
+              return (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => {
+                    setSelectedPromptIdx(idx);
+                    setPromptAnswer("");
+                  }}
+                  className={`w-full text-left p-3 rounded-xl border text-xs font-semibold block transition-all ${
+                    active
+                      ? "bg-emerald-50 text-emerald-800 border-emerald-300 ring-2 ring-emerald-500/20 dark:bg-emerald-950/20 dark:text-emerald-300 dark:border-emerald-900/60"
+                      : "bg-white text-gray-600 border-gray-150 hover:bg-gray-50 dark:bg-neutral-900 dark:text-neutral-350 dark:border-neutral-800 dark:hover:bg-neutral-800"
+                  }`}
+                >
+                  💡 {p.title}
+                </button>
               );
-              setPromptAnswer("");
-              showToast("Guided meditation journal logged directly to database!", "success");
-            } catch {
-              showToast("Failed to write guided journal.", "warning");
-            } finally {
-              setIsSavingPrompt(false);
-            }
-          };
+            })}
+          </div>
 
-          return (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              
-              {/* Prompt Buttons Selection */}
-              <div className="md:col-span-1 space-y-2.5">
-                <span className="block text-4xs font-bold uppercase tracking-widest text-gray-400 dark:text-neutral-500">
-                  Select Focus Reframer:
-                </span>
-                {JOURNAL_PROMPTS.map((p, idx) => {
-                  const active = selectedPromptIdx === idx;
-                  return (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => {
-                        setSelectedPromptIdx(idx);
-                        setPromptAnswer("");
-                      }}
-                      className={`w-full text-left p-3 rounded-xl border text-xs font-semibold block transition-all ${
-                        active
-                          ? "bg-emerald-50 text-emerald-800 border-emerald-300 ring-2 ring-emerald-500/20 dark:bg-emerald-950/20 dark:text-emerald-300 dark:border-emerald-900/60"
-                          : "bg-white text-gray-600 border-gray-150 hover:bg-gray-50 dark:bg-neutral-900 dark:text-neutral-350 dark:border-neutral-800 dark:hover:bg-neutral-800"
-                      }`}
-                    >
-                      💡 {p.title}
-                    </button>
-                  );
-                })}
+          {/* Input details form */}
+          <form onSubmit={handleSaveGuidedJournal} className="md:col-span-2 space-y-3 flex flex-col justify-between">
+            <div className="space-y-1.5">
+              <span className="block text-4xs font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
+                Active Guided Exercise Question:
+              </span>
+              <div className="text-xs bg-gray-50 dark:bg-neutral-800 p-3.5 rounded-xl border border-gray-100 dark:border-neutral-800 leading-relaxed font-semibold text-gray-700 dark:text-neutral-300">
+                📝 {JOURNAL_PROMPTS[selectedPromptIdx].question}
               </div>
-
-              {/* Input details form */}
-              <form onSubmit={handleSaveGuidedJournal} className="md:col-span-2 space-y-3 flex flex-col justify-between">
-                <div className="space-y-1.5">
-                  <span className="block text-4xs font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
-                    Active Guided Exercise Question:
-                  </span>
-                  <div className="text-xs bg-gray-50 dark:bg-neutral-800 p-3.5 rounded-xl border border-gray-100 dark:border-neutral-800 leading-relaxed font-semibold text-gray-700 dark:text-neutral-300">
-                    📝 {JOURNAL_PROMPTS[selectedPromptIdx].question}
-                  </div>
-                  <textarea
-                    rows={3}
-                    maxLength={500}
-                    placeholder="Pour out reflections, debunks, and efforts freely..."
-                    className="w-full text-xs rounded-xl border border-gray-200 bg-white p-3 text-gray-900 focus:border-emerald-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-emerald-500"
-                    value={promptAnswer}
-                    onChange={(e) => setPromptAnswer(e.target.value)}
-                  />
-                  <div className="flex justify-between items-center text-5xs text-gray-400 font-mono">
-                    <span>Rate limit: single-action logs</span>
-                    <span>{promptAnswer.length} / 500 characters</span>
-                  </div>
-                </div>
-
-                <div className="flex justify-end pt-2">
-                  <button
-                    id="btn-support-journal-submit"
-                    type="submit"
-                    disabled={isSavingPrompt}
-                    className="rounded-xl bg-emerald-600 px-5 py-2 text-xs font-bold text-white shadow-xs hover:bg-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-400 cursor-pointer disabled:opacity-50"
-                  >
-                    {isSavingPrompt ? "Saving Reflection..." : "Save Reflection into History"}
-                  </button>
-                </div>
-              </form>
-
+              <textarea
+                rows={3}
+                maxLength={500}
+                placeholder="Pour out reflections, debunks, and efforts freely..."
+                className="w-full text-xs rounded-xl border border-gray-200 bg-white p-3 text-gray-900 focus:border-emerald-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-emerald-500"
+                value={promptAnswer}
+                onChange={(e) => setPromptAnswer(e.target.value)}
+              />
+              <div className="flex justify-between items-center text-5xs text-gray-400 font-mono">
+                <span>Rate limit: single-action logs</span>
+                <span>{promptAnswer.length} / 500 characters</span>
+              </div>
             </div>
-          );
-        })()}
+
+            <div className="flex justify-end pt-2">
+              <button
+                id="btn-support-journal-submit"
+                type="submit"
+                disabled={isSavingPrompt}
+                className="rounded-xl bg-emerald-600 px-5 py-2 text-xs font-bold text-white shadow-xs hover:bg-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-400 cursor-pointer disabled:opacity-50"
+              >
+                {isSavingPrompt ? "Saving Reflection..." : "Save Reflection into History"}
+              </button>
+            </div>
+          </form>
+
+        </div>
       </section>
 
     </div>

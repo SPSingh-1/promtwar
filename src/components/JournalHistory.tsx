@@ -159,7 +159,7 @@ export const JournalHistory: React.FC = () => {
 
         {/* Heatmap Grid */}
         <div className="flex flex-col items-center gap-4">
-          <div className="grid grid-cols-5 sm:grid-cols-10 md:grid-cols-15 gap-2.5 w-full">
+          <div className="grid grid-cols-5 sm:grid-cols-10 gap-2.5 w-full">
             {heatmapDays.map((day) => {
               const activeFilter = selectedHeatmapDate === day.dateStr;
               return (

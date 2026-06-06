@@ -4,7 +4,7 @@
  */
 
 import { describe, test, expect, beforeEach, vi } from "vitest";
-import { sanitizeInput, profileOps } from "../utils/db";
+import { sanitizeInput, profileOps, dbOps } from "../utils/db";
 import { analyzeMoodPatterns, getGuidedPrompt } from "../utils/wellnessData";
 import { MoodLevel, MoodEntry, ExamType } from "../types";
 
@@ -173,5 +173,37 @@ describe("Mental Wellness Tracker Applet - Core Test Suite", () => {
     expect(mockTrackerConfig.roleMain).toBe("main");
     expect(mockTrackerConfig.roleNav).toBe("navigation");
     expect(mockTrackerConfig.roleDialog).toBe("dialog");
+  });
+
+  // --- DATABASE & FALLBACK OPERATIONS TEST ---
+  test("dbOps should correctly fallback and save/retrieve from localstorage", async () => {
+    const mockEntry: MoodEntry = {
+      id: "test-db-1",
+      userId: "local-student-user",
+      mood: MoodLevel.OKAY,
+      triggers: ["Studies"],
+      intensity: 5,
+      note: "Test database note",
+      reflectionPrompt: "Prompt",
+      reflectionAnswer: "Answer",
+      timestamp: new Date().toISOString(),
+      burnoutRisk: false
+    };
+
+    // Save entry
+    await dbOps.saveMoodEntry(mockEntry);
+
+    // Retrieve entries
+    const entries = await dbOps.getAllMoodEntries();
+    expect(entries.length).toBeGreaterThanOrEqual(1);
+    
+    const saved = entries.find(e => e.id === "test-db-1");
+    expect(saved).toBeDefined();
+    expect(saved?.note).toBe("Test database note");
+
+    // Clear entries
+    await dbOps.clearAllEntries();
+    const cleared = await dbOps.getAllMoodEntries();
+    expect(cleared.filter(e => e.id === "test-db-1").length).toBe(0);
   });
 });

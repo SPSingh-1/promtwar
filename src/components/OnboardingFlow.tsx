@@ -83,7 +83,7 @@ export const OnboardingFlow: React.FC = () => {
               <div className="mb-4 rounded-full bg-purple-50 dark:bg-purple-950/40 p-4 text-purple-600 dark:text-purple-400">
                 <ShieldCheck size={40} />
               </div>
-              <h2 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white text-center">
+              <h2 id="onboard-title" className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white text-center">
                 Strict Privacy Guard
               </h2>
               <p className="mt-3 text-sm text-gray-600 dark:text-neutral-300 text-center leading-relaxed">
@@ -134,7 +134,7 @@ export const OnboardingFlow: React.FC = () => {
               <div className="mb-4 rounded-full bg-rose-50 dark:bg-rose-950/40 p-4 text-rose-600 dark:text-rose-400">
                 <Heart size={40} className="animate-beat" />
               </div>
-              <h2 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
+              <h2 id="onboard-title" className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
                 You Are Not Alone
               </h2>
               <p className="mt-3 text-sm text-gray-600 dark:text-neutral-300 leading-relaxed">

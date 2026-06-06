@@ -67,9 +67,10 @@ export const dbOps = {
       throw new Error(`Invalid mood value: ${entry.mood}`);
     }
     
-    // Sanitize note & reflection answers
+    // Sanitize note, reflection answers & prompts
     entry.note = sanitizeInput(entry.note);
     entry.reflectionAnswer = sanitizeInput(entry.reflectionAnswer);
+    entry.reflectionPrompt = sanitizeInput(entry.reflectionPrompt);
 
     try {
       const db = await openDB();
