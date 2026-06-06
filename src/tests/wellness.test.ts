@@ -5,7 +5,7 @@
 
 import { describe, test, expect, beforeEach, vi } from "vitest";
 import { sanitizeInput, profileOps, dbOps } from "../utils/db";
-import { analyzeMoodPatterns, getGuidedPrompt } from "../utils/wellnessData";
+import { analyzeMoodPatterns, getGuidedPrompt, getSeedData } from "../utils/wellnessData";
 import { MoodLevel, MoodEntry, ExamType } from "../types";
 
 // Mock localStorage for Vitest compilation security
@@ -205,5 +205,180 @@ describe("Mental Wellness Tracker Applet - Core Test Suite", () => {
     await dbOps.clearAllEntries();
     const cleared = await dbOps.getAllMoodEntries();
     expect(cleared.filter(e => e.id === "test-db-1").length).toBe(0);
+  });
+
+  // --- ROBUSTNESS: ADDITIONAL BOUNDARY & EDGE CASES ---
+  test("dbOps should throw error for invalid mood value during saving", async () => {
+    const invalidEntry: any = {
+      id: "invalid-mood-1",
+      userId: "test-user",
+      mood: "ECSTATIC", // Invalid Mood value
+      triggers: [],
+      intensity: 5,
+      note: "Invalid mood test note",
+      reflectionPrompt: "",
+      reflectionAnswer: "",
+      timestamp: new Date().toISOString(),
+      burnoutRisk: false
+    };
+
+    await expect(dbOps.saveMoodEntry(invalidEntry)).rejects.toThrow("Invalid mood value");
+  });
+
+  test("dbOps getLocalStorageFallbackEntries should handle malformed JSON safely", () => {
+    localStorage.setItem("fallback_moodEntries", "malformed{[}");
+    const entries = dbOps.getLocalStorageFallbackEntries();
+    expect(entries).toEqual([]);
+  });
+
+  test("profileOps updateStreak with an older date should not increment or modify streak", () => {
+    // Seed standard profile
+    profileOps.saveProfile({
+      id: "local-student-user",
+      examType: "JEE",
+      examDate: "2026-07-06",
+      streakCount: 5,
+      lastCheckIn: "2026-06-05",
+      onboardingCompleted: true,
+      reminderTime: "21:00",
+      theme: "system"
+    });
+
+    // Check-in on an older date: 2026-06-03 (last was 2026-06-05)
+    const resultStreak = profileOps.updateStreak("2026-06-03");
+    expect(resultStreak).toBe(5);
+
+    const updatedProfile = profileOps.getProfile();
+    expect(updatedProfile.streakCount).toBe(5);
+    expect(updatedProfile.lastCheckIn).toBe("2026-06-05"); // unchanged
+  });
+
+  test("wellnessData getSeedData should generate valid seed entries", () => {
+    const seed = getSeedData("NEET");
+    expect(seed.length).toBeGreaterThanOrEqual(13); // i = 25 to 0 step 2
+    expect(seed[0].userId).toBe("local-student-user");
+    expect(seed[0].id).toBeDefined();
+    expect(seed[0].mood).toBeDefined();
+  });
+
+  test("wellnessData analyzeMoodPatterns handles empty entries correctly", () => {
+    const report = analyzeMoodPatterns([], "CAT", 20);
+    expect(report.weeklyAverageValue).toBe(50);
+    expect(report.burnoutRiskLevel).toBe("Low");
+    expect(report.bestDay).toBe("N/A");
+    expect(report.worstDay).toBe("N/A");
+  });
+
+  test("wellnessData analyzeMoodPatterns returns appropriate reports for past exams", () => {
+    const distressLogs: MoodEntry[] = [
+      {
+        id: "log-1",
+        userId: "student-1",
+        mood: MoodLevel.OKAY,
+        triggers: ["Studies"],
+        intensity: 5,
+        note: "",
+        reflectionPrompt: "",
+        reflectionAnswer: "",
+        timestamp: new Date().toISOString(),
+        burnoutRisk: false
+      }
+    ];
+    const report = analyzeMoodPatterns(distressLogs, "UPSC", -5);
+    expect(report.moodAroundExamsReport).toContain("concluded");
+  });
+
+  test("wellnessData analyzeMoodPatterns handles intermediate exam proximity milestones", () => {
+    const distressLogs: MoodEntry[] = [
+      {
+        id: "log-1",
+        userId: "student-1",
+        mood: MoodLevel.OKAY,
+        triggers: ["Studies"],
+        intensity: 5,
+        note: "",
+        reflectionPrompt: "",
+        reflectionAnswer: "",
+        timestamp: new Date().toISOString(),
+        burnoutRisk: false
+      }
+    ];
+    const report = analyzeMoodPatterns(distressLogs, "GATE", 30);
+    expect(report.moodAroundExamsReport).toContain("30 days remaining");
+  });
+
+  test("wellnessData analyzeMoodPatterns generates suggestions for varied triggers and low scores", () => {
+    // Case 1: Sleep distress trigger suggestions
+    const sleepDistressLogs: MoodEntry[] = [
+      {
+        id: "log-sleep",
+        userId: "student-1",
+        mood: MoodLevel.LOW,
+        triggers: ["Sleep"],
+        intensity: 8,
+        note: "Cannot sleep",
+        reflectionPrompt: "",
+        reflectionAnswer: "",
+        timestamp: new Date().toISOString(),
+        burnoutRisk: false
+      }
+    ];
+    const reportSleep = analyzeMoodPatterns(sleepDistressLogs, "JEE", 60);
+    expect(reportSleep.aiSuggestions.some(s => s.title.includes("Sleep"))).toBe(true);
+
+    // Case 2: Comparison distress trigger suggestions
+    const comparisonLogs: MoodEntry[] = [
+      {
+        id: "log-comp",
+        userId: "student-1",
+        mood: MoodLevel.ANXIOUS,
+        triggers: ["Comparison"],
+        intensity: 9,
+        note: "Peer pressure",
+        reflectionPrompt: "",
+        reflectionAnswer: "",
+        timestamp: new Date().toISOString(),
+        burnoutRisk: false
+      }
+    ];
+    const reportComp = analyzeMoodPatterns(comparisonLogs, "JEE", 60);
+    expect(reportComp.aiSuggestions.some(s => s.title.includes("Competitor") || s.title.includes("Comparison"))).toBe(true);
+
+    // Case 3: Result Fear trigger suggestions
+    const fearLogs: MoodEntry[] = [
+      {
+        id: "log-fear",
+        userId: "student-1",
+        mood: MoodLevel.ANXIOUS,
+        triggers: ["Result Fear"],
+        intensity: 9,
+        note: "Mock cutoffs",
+        reflectionPrompt: "",
+        reflectionAnswer: "",
+        timestamp: new Date().toISOString(),
+        burnoutRisk: false
+      }
+    ];
+    const reportFear = analyzeMoodPatterns(fearLogs, "JEE", 60);
+    expect(reportFear.aiSuggestions.some(s => s.title.includes("Process") || s.title.includes("Fear"))).toBe(true);
+
+    // Case 4: Low weekly average score (< 40) suggestions
+    const severeLogs: MoodEntry[] = [
+      {
+        id: "log-severe",
+        userId: "student-1",
+        mood: MoodLevel.BURNOUT,
+        triggers: ["Studies"],
+        intensity: 10,
+        note: "Burnt out",
+        reflectionPrompt: "",
+        reflectionAnswer: "",
+        timestamp: new Date().toISOString(),
+        burnoutRisk: true
+      }
+    ];
+    const reportSevere = analyzeMoodPatterns(severeLogs, "JEE", 60);
+    expect(reportSevere.weeklyAverageValue).toBeLessThan(40);
+    expect(reportSevere.aiSuggestions.some(s => s.title.includes("Self-Compassion") || s.title.includes("Compassion"))).toBe(true);
   });
 });

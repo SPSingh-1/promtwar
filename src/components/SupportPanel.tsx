@@ -340,13 +340,13 @@ export const SupportPanel: React.FC = () => {
               <span className="block text-4xs font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
                 👁️ 5 Sights (Things you see on study desk, walls):
               </span>
-              <div className="grid grid-cols-5 gap-1.5">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5">
                 {groundSights.map((val, idx) => (
                   <input
                     key={`sight-${idx}`}
                     type="text"
                     disabled={groundingLocked}
-                    className="rounded-lg border border-gray-200 p-1.5 text-5xs bg-white focus:outline-none dark:border-neutral-800 dark:bg-neutral-900 dark:text-white"
+                    className="w-full rounded-lg border border-gray-200 p-1.5 text-5xs bg-white focus:outline-none dark:border-neutral-800 dark:bg-neutral-900 dark:text-white"
                     placeholder={`Sight ${idx + 1}`}
                     value={val}
                     onChange={(e) => {
@@ -364,13 +364,13 @@ export const SupportPanel: React.FC = () => {
               <span className="block text-4xs font-bold uppercase tracking-widest text-teal-600 dark:text-teal-400">
                 ✋ 4 Touch points (Cloth fabric, table smoothness, cold cup):
               </span>
-              <div className="grid grid-cols-4 gap-1.5">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                 {groundTouches.map((val, idx) => (
                   <input
                     key={`touch-${idx}`}
                     type="text"
                     disabled={groundingLocked}
-                    className="rounded-lg border border-gray-200 p-1.5 text-5xs bg-white focus:outline-none dark:border-neutral-800 dark:bg-neutral-900 dark:text-white"
+                    className="w-full rounded-lg border border-gray-200 p-1.5 text-5xs bg-white focus:outline-none dark:border-neutral-800 dark:bg-neutral-900 dark:text-white"
                     placeholder={`Touch ${idx + 1}`}
                     value={val}
                     onChange={(e) => {
@@ -394,7 +394,7 @@ export const SupportPanel: React.FC = () => {
                     key={`sound-${idx}`}
                     type="text"
                     disabled={groundingLocked}
-                    className="rounded-lg border border-gray-200 p-1.5 text-5xs bg-white focus:outline-none dark:border-neutral-800 dark:bg-neutral-900 dark:text-white"
+                    className="w-full rounded-lg border border-gray-200 p-1.5 text-5xs bg-white focus:outline-none dark:border-neutral-800 dark:bg-neutral-900 dark:text-white"
                     placeholder={`Sound ${idx + 1}`}
                     value={val}
                     onChange={(e) => {
@@ -418,7 +418,7 @@ export const SupportPanel: React.FC = () => {
                     key={`scent-${idx}`}
                     type="text"
                     disabled={groundingLocked}
-                    className="rounded-lg border border-gray-200 p-1.5 text-5xs bg-white focus:outline-none dark:border-neutral-800 dark:bg-neutral-900 dark:text-white"
+                    className="w-full rounded-lg border border-gray-200 p-1.5 text-5xs bg-white focus:outline-none dark:border-neutral-800 dark:bg-neutral-900 dark:text-white"
                     placeholder={`Scent ${idx + 1}`}
                     value={val}
                     onChange={(e) => {

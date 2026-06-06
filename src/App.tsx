@@ -87,93 +87,92 @@ function MainAppContent() {
           
           {/* Logo Frame */}
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => setActiveTab("home")}>
-            <div className="rounded-xl bg-emerald-600 p-2 text-white shadow-sm dark:bg-emerald-500">
-              <Heart size={18} className="fill-white" />
+            <div className="rounded-lg bg-emerald-600 p-1.5 text-white shadow-xs dark:bg-emerald-500">
+              <Heart size={14} className="fill-white" />
             </div>
             <div>
-              <h2 className="text-sm font-bold tracking-tight text-gray-950 dark:text-white leading-none">
+              <h2 className="text-xs font-bold tracking-tight text-gray-950 dark:text-white leading-none">
                 Aura Wellness
               </h2>
-              <span className="text-5xs text-gray-400 block mt-0.5 font-bold uppercase tracking-widest leading-none">
+              <span className="text-6xs text-gray-400 block mt-0.5 font-bold uppercase tracking-widest leading-none">
                 Privacy-First Desk
               </span>
             </div>
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1" role="navigation" aria-label="Desktop Primary Navigation">
+          <nav className="hidden md:flex items-center gap-0.5" role="navigation" aria-label="Desktop Primary Navigation">
             <button
               onClick={() => setActiveTab("home")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition ${
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-2xs font-bold cursor-pointer transition ${
                 activeTab === "home" ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/20 dark:text-emerald-300" : "text-gray-500 hover:bg-gray-50 dark:text-neutral-400 dark:hover:bg-neutral-800"
               }`}
             >
-              <Home size={14} />
-              Home Navigation
+              <Home size={12} />
+              Home
             </button>
             <button
               id="nav-btn-mood"
               onClick={() => setActiveTab("mood")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition ${
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-2xs font-bold cursor-pointer transition ${
                 activeTab === "mood" ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/20 dark:text-emerald-300" : "text-gray-500 hover:bg-gray-50 dark:text-neutral-400 dark:hover:bg-neutral-800"
               }`}
             >
-              <BookOpen size={14} />
-              Check-In Logger
+              <BookOpen size={12} />
+              Log Mood
             </button>
             <button
               onClick={() => setActiveTab("journal")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition ${
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-2xs font-bold cursor-pointer transition ${
                 activeTab === "journal" ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/20 dark:text-emerald-300" : "text-gray-500 hover:bg-gray-50 dark:text-neutral-400 dark:hover:bg-neutral-800"
               }`}
             >
-              <History size={14} />
-              Journal & Heatmap
+              <History size={12} />
+              Journal
             </button>
             <button
               onClick={() => setActiveTab("insights")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition ${
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-2xs font-bold cursor-pointer transition ${
                 activeTab === "insights" ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/20 dark:text-emerald-300" : "text-gray-500 hover:bg-gray-50 dark:text-neutral-400 dark:hover:bg-neutral-800"
               }`}
             >
-              <BarChart4 size={14} />
-              Mental Insights
+              <BarChart4 size={12} />
+              Insights
             </button>
             <button
               onClick={() => setActiveTab("support")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition ${
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-2xs font-bold cursor-pointer transition ${
                 activeTab === "support" ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/20 dark:text-emerald-300" : "text-gray-500 hover:bg-gray-50 dark:text-neutral-400 dark:hover:bg-neutral-800"
               }`}
             >
-              <Heart size={14} />
-              Support Desk
+              <Heart size={12} />
+              Support
             </button>
             <button
               onClick={() => setActiveTab("settings")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition ${
-                activeTab === "settings" ? "bg-emerald-50 text-emerald-850 dark:bg-emerald-950/20 dark:text-emerald-300" : "text-gray-500 hover:bg-gray-50 dark:text-neutral-400 dark:hover:bg-neutral-800"
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-2xs font-bold cursor-pointer transition ${
+                activeTab === "settings" ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/20 dark:text-emerald-300" : "text-gray-500 hover:bg-gray-50 dark:text-neutral-400 dark:hover:bg-neutral-800"
               }`}
               aria-label="App settings panel"
             >
-              <Settings size={14} />
-              Preferences
+              <Settings size={12} />
+              Settings
             </button>
           </nav>
 
           {/* Quick Header Right Widgets */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {profile.streakCount > 0 && (
-              <span className="bg-orange-50 text-orange-700 border border-orange-100 rounded-lg px-2 py-1 text-5xs font-bold uppercase tracking-wider dark:bg-orange-950/20 dark:border-orange-900/30 dark:text-orange-400 flex items-center gap-1 select-none animate-slide-in-right">
+              <span className="bg-orange-50 text-orange-700 border border-orange-100 rounded-lg px-2 py-0.5 text-6xs font-bold uppercase tracking-wider dark:bg-orange-950/20 dark:border-orange-900/30 dark:text-orange-400 flex items-center gap-0.5 select-none animate-slide-in-right">
                 🔥 {profile.streakCount} D Streak
               </span>
             )}
             
             {/* Exam Badge */}
-            <span className="hidden sm:inline bg-purple-50 text-purple-700 border border-purple-100 rounded-lg px-2.5 py-1 text-5xs font-bold uppercase tracking-widest dark:bg-purple-950/20 dark:border-purple-900/40 dark:text-purple-300">
-              🇮🇳 target exam: {profile.examType}
+            <span className="hidden sm:inline bg-purple-50 text-purple-700 border border-purple-100 rounded-lg px-2 py-0.5 text-6xs font-bold uppercase tracking-widest dark:bg-purple-950/20 dark:border-purple-900/40 dark:text-purple-300">
+              🇮🇳 Exam: {profile.examType}
             </span>
           </div>
-
         </div>
       </header>
 
